@@ -22,7 +22,7 @@ EXPORT_PATH="$BUILD_DIR/export"
 mkdir -p "$BUILD_DIR"
 
 # Determine whether to use workspace or project
-if [ -d "${PROJECT_NAME}.xcworkspace" ]; then
+if [[ -d "${PROJECT_NAME}.xcworkspace" ]]; then
   XCODE_ARG=( -workspace "${PROJECT_NAME}.xcworkspace" )
 else
   XCODE_ARG=( -project "${PROJECT_NAME}.xcodeproj" )
@@ -31,13 +31,13 @@ fi
 echo "Scheme: $SCHEME"
 echo "Configuration: $CONFIG"
 echo "Export method: $EXPORT_METHOD"
-if [ -n "$TEAM_ID" ]; then echo "Team: $TEAM_ID"; fi
+if [[ -n "$TEAM_ID" ]]; then echo "Team: $TEAM_ID"; fi
 
 echo "Cleaning and archiving..."
 xcodebuild clean "${XCODE_ARG[@]}" -scheme "$SCHEME" -configuration "$CONFIG"
 
 ARCHIVE_CMD=( xcodebuild "${XCODE_ARG[@]}" -scheme "$SCHEME" -configuration "$CONFIG" -archivePath "$ARCHIVE_PATH" archive -allowProvisioningUpdates )
-if [ -n "$TEAM_ID" ]; then
+if [[ -n "$TEAM_ID" ]]; then
   ARCHIVE_CMD+=( DEVELOPMENT_TEAM="$TEAM_ID" CODE_SIGN_STYLE=Automatic )
 fi
 
@@ -62,7 +62,7 @@ cat > "$EXPORT_PLIST" <<EOF
 </plist>
 EOF
 
-if [ -n "$TEAM_ID" ]; then
+if [[ -n "$TEAM_ID" ]]; then
   /usr/libexec/PlistBuddy -c "Add :teamID string $TEAM_ID" "$EXPORT_PLIST" >/dev/null 2>&1 || true
 fi
 
@@ -73,7 +73,7 @@ echo "Build and export complete. See: $EXPORT_PATH"
 
 # Try to locate a built macOS .app and launch it
 ARCHIVED_APP="$ARCHIVE_PATH/Products/Applications/${SCHEME}.app"
-if [ -d "$ARCHIVED_APP" ]; then
+if [[ -d "$ARCHIVED_APP" ]]; then
   echo "Found app in archive: $ARCHIVED_APP"
   echo "Launching $ARCHIVED_APP..."
   open "$ARCHIVED_APP"
@@ -81,9 +81,9 @@ if [ -d "$ARCHIVED_APP" ]; then
 fi
 
 # Check exported products (some projects export .app instead of IPA)
-if [ -d "$EXPORT_PATH" ]; then
+if [[ -d "$EXPORT_PATH" ]]; then
   FOUND_APP=$(find "$EXPORT_PATH" -maxdepth 1 -type d -name "*.app" -print -quit || true)
-  if [ -n "$FOUND_APP" ]; then
+  if [[ -n "$FOUND_APP" ]]; then
     echo "Found exported app: $FOUND_APP"
     echo "Launching $FOUND_APP..."
     open "$FOUND_APP"
@@ -91,7 +91,7 @@ if [ -d "$EXPORT_PATH" ]; then
   fi
 
   FOUND_IPA=$(find "$EXPORT_PATH" -maxdepth 1 -type f -name "*.ipa" -print -quit || true)
-  if [ -n "$FOUND_IPA" ]; then
+  if [[ -n "$FOUND_IPA" ]]; then
     echo "Exported an IPA at: $FOUND_IPA"
     echo "Note: IPA files are for iOS — cannot launch on macOS desktop."
     exit 0
